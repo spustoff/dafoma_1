@@ -29,62 +29,68 @@ struct VisualModeView: View {
                 .padding(.top, 20)
                 
                 // Mode Grid
-                LazyVGrid(columns: [
-                    GridItem(.flexible()),
-                    GridItem(.flexible())
-                ], spacing: 16) {
-                    ForEach(VisualMode.allCases) { mode in
-                        EnhancedModeCard(mode: mode)
-                            .onTapGesture {
-                                appState.currentMode = mode
-                                selectedMode = mode
+                ScrollView(.vertical, showsIndicators: false) {
+                    
+                    VStack {
+                        
+                        LazyVGrid(columns: [
+                            GridItem(.flexible()),
+                            GridItem(.flexible())
+                        ], spacing: 16) {
+                            ForEach(VisualMode.allCases) { mode in
+                                EnhancedModeCard(mode: mode)
+                                    .onTapGesture {
+                                        appState.currentMode = mode
+                                        selectedMode = mode
+                                    }
                             }
-                    }
-                }
-                .padding(.horizontal, 20)
-                
-                Spacer()
-                
-                // Quick Controls
-                VStack(spacing: 16) {
-                    HStack {
-                        Button("Settings") {
-                            showingSettings = true
                         }
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 24)
-                        .padding(.vertical, 12)
-                        .background(PulseGridColors.secondaryBackground)
-                        .cornerRadius(8)
+                        .padding(.horizontal, 20)
                         
                         Spacer()
                         
-                        Button("Color Schemes") {
-                            appState.showingColorSchemeManager = true
-                        }
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 24)
-                        .padding(.vertical, 12)
-                        .background(PulseGridColors.gold.opacity(0.8))
-                        .cornerRadius(8)
-                    }
-                    
-                    // Animation Intensity Control
-                    VStack(spacing: 12) {
-                        HStack {
-                            Text("Global Animation Intensity")
+                        // Quick Controls
+                        VStack(spacing: 16) {
+                            HStack {
+                                Button("Settings") {
+                                    showingSettings = true
+                                }
                                 .foregroundColor(.white)
-                            Spacer()
-                            Text("\(Int(appState.animationIntensity * 100))%")
-                                .foregroundColor(PulseGridColors.accent)
+                                .padding(.horizontal, 24)
+                                .padding(.vertical, 12)
+                                .background(PulseGridColors.secondaryBackground)
+                                .cornerRadius(8)
+                                
+                                Spacer()
+                                
+                                Button("Color Schemes") {
+                                    appState.showingColorSchemeManager = true
+                                }
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 24)
+                                .padding(.vertical, 12)
+                                .background(PulseGridColors.gold.opacity(0.8))
+                                .cornerRadius(8)
+                            }
+                            
+                            // Animation Intensity Control
+                            VStack(spacing: 12) {
+                                HStack {
+                                    Text("Global Animation Intensity")
+                                        .foregroundColor(.white)
+                                    Spacer()
+                                    Text("\(Int(appState.animationIntensity * 100))%")
+                                        .foregroundColor(PulseGridColors.accent)
+                                }
+                                
+                                Slider(value: $appState.animationIntensity, in: 0.1...1.0)
+                                    .accentColor(PulseGridColors.accent)
+                            }
                         }
-                        
-                        Slider(value: $appState.animationIntensity, in: 0.1...1.0)
-                            .accentColor(PulseGridColors.accent)
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 20)
                     }
                 }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 20)
             }
             .background(PulseGridColors.background)
             .navigationBarHidden(true)
